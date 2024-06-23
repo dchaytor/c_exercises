@@ -1,0 +1,11 @@
+4-2:
+integer division; value is truncated to 0 (1/3 = 0.33 -> 0)
+
+
+4-3:
+coder forgot to add variable to print to printf expression; compiler picks a random uninitialized value
+
+
+4-4:
+didn't use float flag in f-string expression; compiler thinks it's looking for an integer, and either typecasts value to int (truncating it) or throws an error or something
+
