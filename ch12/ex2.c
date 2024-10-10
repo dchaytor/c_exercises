@@ -140,7 +140,7 @@ int timeDifferenceMins(struct timelog dateTime1, struct timelog dateTime2)  {
 
 int main(void)  {
     
-//    printf("The difference between 
+    printf("The difference between 
 
     // still need to test this lol
 

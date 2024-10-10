@@ -22,7 +22,7 @@ int main(int argc, char * argv[])   {
         exit(8);
     }
 
-    char fp3 [100]; 
+    char fp3 [100];	// assuming filename + extra chars aren't more than 100 chars long 
     char fpElse [100];
 
     sprintf(fp3, "%s_div3", argv[1]);
