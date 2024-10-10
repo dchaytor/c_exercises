@@ -15,12 +15,12 @@ void zeros(int * array, int count)  {
 
 
 int main(int argc, char **argv) {
-    
     // this isn't really worth doing with malloc, but i wanted to practice
     // using the function - prob simpler just to define an array w/ set size
-    int *test = (int*)malloc(sizeof(int) * (argc - 1)); 
-    unsigned short length = argc - 1; 
-    
+	unsigned short length = argc - 1;
+	if (length > MAX_INTS) length = MAX_INTS;
+	int *test = (int*)malloc(sizeof(int) * (argc - 1)); 
+	
     if (argc > 1)   {
         for (short i = 1; i < argc; ++i)  {
             *(test + i - 1) = atoi(argv[i]);
