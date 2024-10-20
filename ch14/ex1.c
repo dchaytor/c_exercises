@@ -20,30 +20,25 @@
 #define BUFFER_SIZE 256
 
 int readLines1(char fileName[])	{
-	// read file into a buffer string and loop through with	
-    unsigned int count = 0;
+	// read file into a buffer string and loop through with pointers	
+    unsigned int count = 0;	
 	char buffer[BUFFER_SIZE];
 	
 	int thisFile = open(fileName, O_RDONLY);
-	//unsigned short readSize;
+	unsigned short readSize;
 	char* thisCharP;	
 	char thisChar;
 
-	while ((read(thisFile, buffer, sizeof(buffer))) > 0)	{
-		thisCharP = buffer;	 // not sure if this is right lol but we'll see
-		while (thisCharP != NULL)	{ 
-			thisChar = *thisCharP;
-			if (thisChar == '\0') break;
-			else if (thisChar == '\n') count++;
-			
-			//printf("%c", thisChar);
-			//fflush(stdout);
+	while ((readSize = read(thisFile, buffer, sizeof(buffer)-1)) > 0)	{
+		thisCharP = buffer;
+	    buffer[readSize] = '\0'; //make sure string terminated in correct location
+		while (thisCharP != NULL && (thisChar = *thisCharP) != '\0')	{ 
+			if (thisChar == '\n') count++;
 			thisCharP++;
 		}
 	}
 	
 	close(thisFile);
-
 	return count;
 } // end readLines1 function
 
@@ -77,7 +72,7 @@ int readLines3(char fileName[])  {
     // if this buffer is too small (e.g., if file has lines with >120 characters)
 	// this throws a segfault - not sure how to really solve
 	char thisLine[120];
-
+	// this should use fgets w/ max of string size then sscanf
     while (fscanf(thisFile, "%s", thisLine))   {
         if (getc(thisFile) == EOF) break;   // unga bunga
 		++count;
@@ -88,7 +83,7 @@ int readLines3(char fileName[])  {
 } // end readLines3 funtion
 
 int main(int argc, char *argv[])    {
-
+	// still need to run benchmarks...
     int cCount = 0; // can't use unsigned since returning -ve for errors
 
     if (argc < 2)   {
