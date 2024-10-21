@@ -1,6 +1,7 @@
 /*  write a program that reads a file containing a list of numbers,
     and then writes two files, one with all numbers divisible by 3
-    and another containing all the other numbers. 2023-08-16    */
+    and another containing all the other numbers. 2023-08-16,
+    updated 2024-10-21	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -36,19 +37,13 @@ int main(int argc, char * argv[])   {
         exit(8);
     }
 
-
     // assuming 1 number per line
     int numIn = 0;
 
-    while(!feof(inFile))    {
-        //numIn = getw(inFile); // this wasn't working properly; kept reading ascii or something idk
-        fscanf(inFile, "%d", &numIn);
-        
+ 	while(fscanf(inFile, "%d", &numIn) != EOF)	{		
         if ((numIn % 3) == 0) {
-            //putw(numIn, outFileDiv3);
             fprintf(outFileDiv3, "%d\n", numIn);
         } else  {
-            //putw(numIn, outFileElse);
             fprintf(outFileElse, "%d\n", numIn);
         } 
     }
@@ -60,7 +55,6 @@ int main(int argc, char * argv[])   {
 
     printf("Numbers divisible by 3 stored in %s\n", fp3);
     printf("Numbers not divisible by 3 stored in %s\n", fpElse);
-
 
     return 0;
 }
