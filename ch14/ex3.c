@@ -33,7 +33,19 @@ int main(int argc, char * argv[])   {
     FILE * outFileElse = fopen(fpElse, "w");
 
     if (outFileDiv3 == NULL || outFileElse == NULL) {
-        fprintf(stderr, "Error saving to output files; aborting program\n");
+		fclose(inFile);
+		
+		if (NULL == outFileElse && NULL == outFileDiv3)	{
+			fprintf(stderr, "Error saving to output files %s and %s; aborting program", fp3, fpElse);
+		}	
+		else if (NULL == outFileElse) {
+			fclose(outFileDiv3); 
+			fprintf(stderr, "Error saving to output file %s; aborting program\n", fpElse);
+		}
+	   	else {
+			fclose(outFileElse);
+        	fprintf(stderr, "Error saving to output file %s; aborting program\n", fpElse);
+		}
         exit(8);
     }
 
