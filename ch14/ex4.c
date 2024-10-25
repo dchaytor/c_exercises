@@ -8,18 +8,25 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-int bin2asc(FILE* inFile, FILE* outFile)	{
-	// read file into buffer as binary, output to outFile as ascii
-	// probably just use getc and putc; don't do own buffer
-	
+int asc2bin(FILE* inFile, FILE* outFile)	{
+	if (NULL == inFile || NULL == outFile)	return 1;
+
+	int thisInt = '\0';
+	while ((thisInt = getw(inFile)) != EOF) {
+		fwrite(&thisInt, 1, sizeof(thisInt), outFile); 
+	}
 	return 0;
 }
 
-int asc2bin(FILE* inFile, FILE* outFile)	{
-	// read file into buffer as ascii, output to outFile as bin
-	// probably just use getc and putc; don't do own buffer
+int bin2asc(FILE* inFile, FILE* outFile)	{
+	if (NULL == inFile || NULL == outFile)	return 1;
 
+	int thisInt = '\0';
+	while (fread(&thisInt, 1, sizeof(thisInt), inFile) != 0)	{
+		putw(thisInt, outFile); 
+	}
 	return 0;
 }
 
@@ -32,64 +39,94 @@ int _rm_extension(char* fname)	{
 			*fname = '\0';
 			return 1; 	// found extension in string
 		}	
-		fname++
+		fname++;
 	}
 	return 0;	// no extension found in string
 }
 
 int main(int argc, char * argv[])   {
-    char _bin2asc = 'n';    
-	FILE* inFile, outFile;	
+    char _opfmt = 'n';    
+	FILE* inFile; FILE* outFile;	
 	
-    // being kind of lazy about how i handle this - not doing a 
-	// verbose error message since I'm the only one using this, 
-	// and not bothering to handle multiple file inputs
     switch (argc)   {
         case 0: // shouldn't be possible, but just in case
         case 1:
         case 2:
             fprintf(stderr, "Error: not enough arguments passed to command line.\n");
-            printf("Usage: ./ex4 [FILE]inFile [b]inary_output/[a]scii_output");
+            printf("Usage: ./ex4 [FILE]inFile [b]inary_output/[a]scii_output\n");
 			exit(8);
 			break;
 		case 3:
-            if (argv[argc - 1][0] == 'a') _bin2asc = 'y';
+			_opfmt = argv[argc - 1][0];
+			if (_opfmt != 'a' && _opfmt != 'b')	{
+            	fprintf(stderr, "Error: invalid argument supplied to program.\n");
+            	printf("Usage: ./ex4 [FILE]inFile [b]inary_output/[a]scii_output\n");
+				exit(8);
+			}
 			break;
 		default:
             fprintf(stderr, "Error: too many arguments passed to command line.\n");
-            printf("Usage: ./ex4 [FILE]inFile [b]inary_output/[a]scii_output");
+            printf("Usage: ./ex4 [FILE]inFile [b]inary_output/[a]scii_output\n");
 			exit(8);
             break;
     }
   
    	// i may be stupid	
-	char* fileNameNoExtn = (char*)malloc(sizeof(argv[1]));
-	char* fileName = argv[1]; 
-	while (*fileNameNoExtn++ == *fileName++) 
-	if (-1 == _rm_extension(&fileNameNoExtn))	{
+	char* const fileName = argv[1];
+	char* const outputFileName = (char*)malloc(sizeof(char) * \
+			strlen(fileName) + 15); 	// allocating 15 extra bytes for extension
+	if (NULL == outputFileName)	{
+		fprintf(stderr, "Could not assign memory; aborting program.\n");
+		exit(9);
+	}
+
+	char* s = fileName; char* t = outputFileName;	
+	while (*t++ = *s++) ;		// should copy string
+
+	if (-1 == _rm_extension(outputFileName))	{
 		fprintf(stderr, "Error: could not process file name. Aborting.\n");
-		free(fileNameNoExtn);
+		free(outputFileName);
 		exit(4);	
 	} // after this, should have fileName == file.ext and fileNameNoExtn == file 
 
-   	if ('y' == _bin2asc)	{
+   	if ('a' == _opfmt)	{
 		inFile = fopen(fileName, "rb");
-		outFile = fopen(strcat(fileNameNoExtn, "_ascii.DAT"), 
+		outFile = fopen(strcat(outputFileName, "_ascii.DAT"), "w"); 
 	}	else	{
-		inFile = fopen(argv[1], "r");
-		outFile = fopen(strcat(fileNameNoExtn, "_binary.BIN"), "wb");
+		inFile = fopen(fileName, "r");
+		outFile = fopen(strcat(outputFileName, "_binary.BIN"), "wb");
 	}
 
-	free(fileNameNoExtn);
-
     if (NULL == inFile || NULL == outFile)	 {
-        fprintf(stderr, "Error: could not find file %s; aborting program\n", argv[1]);
-        exit(2);
+		if (NULL == inFile && NULL == outFile)	{
+			fprintf(stderr, "Error opening input file %s and output file %s; \
+					aborting.\n", fileName, outputFileName);
+		} else if (NULL == inFile)	{
+			fclose(outFile);
+			fprintf(stderr, "Error opening input file %s; aborting.\n", \
+					fileName);
+		} else	{
+			fclose(inFile);
+			fprintf(stderr, "Error opening outout file %s; aborting.\n", \
+					outputFileName);
+		}	
+		free(outputFileName);
+		exit(2);
     }
- 
-   		
-    if (_bin2asc == 'n') 
+	
+	unsigned short int exitCode = 0;
+	// i think i'm going to have to check the _bin2asc condition again... sucks, but
+	// other way is repeating a bunch of code 
+    if ('a' == _opfmt)	exitCode = bin2asc(inFile, outFile);
+	else	exitCode = asc2bin(inFile, outFile);	
 
+	printf("Successfully wrote contents of %s to %s\nExit: %d\n", fileName, \
+			outputFileName, exitCode); 
 
-
-    return 0;}
+	// close files, free memory
+	free(outputFileName);
+	fclose(inFile);
+	fclose(outFile);
+    
+	return exitCode;
+}
