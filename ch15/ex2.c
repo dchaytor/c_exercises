@@ -2,8 +2,23 @@
  * that not only tests the function, but times it as well. optimize
  * it using pointers and determine the time savings.			*/
 
+#include <stdlib.h>
+
+int matMul(int rowA, int colA, int rowB, int colB, \
+		int A[rowA][colA], int B[rowB][colB], int AB[rowA][colB]);
+
+int matMul_nonOpt(int rowA, int colA, int rowB, int colB, \
+	   	int A[rowA][colA], int B[rowB][colB], int AB[rowA][colB]);
+
+int main()	{
+	// FILL OUT TEST CASES
+
+
+	return 0;
+}
+	
 /* NOTE: assuming 2D array with space already allocated			*/ 
-int matrixMultiply(int rowA, int colA, int rowB, int colB, \
+int matMul(int rowA, int colA, int rowB, int colB, \
 		int A[rowA][colA], int B[rowB][colB], int AB[rowA][colB])	{
 	// check for errors in input
 	if (col != rowB) {
@@ -18,25 +33,30 @@ int matrixMultiply(int rowA, int colA, int rowB, int colB, \
 	}
 	
 	// loop through and do matrix multiplication
-	register int* rpA = &A[0][0];
-//	register int* cpA = rAp; // i don't think i need this since looping through
-//	A in col then row (should be sequential, just ++ in both loops)
-	register int* rpB = &B[0][0];
-	register int* cpB = rpB;	
-	register int* ABp = &AB[0][0];
-		
-	for (; rpA <= &A[rowA][0]; ++rpA)	{
-		// go though outer loop of B with one pointer (cpB++), then
-		// inner loop iterate other pointer (rpB++), then at start of loop
-		// set rpB = cpB
-	}	
+	register int* cpA = &A[0][0];		// col pointer for A
+	register int* cpB = &B[0][0];		// row pointer for B
+	register int* rpB = cpB;			// column pointer for B	
+	register int* ABp = &AB[0][0];		// index pointer for AB
+	memset(&AB[0][0], 0, rowA * colB * sizeof(AB[0][0]));
 
+	// loop through rows of A (ptr on last col from inner loop)	
+	for (; cpA <= &A[rowA][0]; cpA++)	{
+		// loop through cols of B
+		for (; cpB <= &B[0][colB]; cpP++)	{
+			// w/ separate ptr, go thru rows of B for current col
+			for (rpB=cpB; rpB<=cpB+colB*(rowB-1); rpP+=colB)	{
+				&ABp +=  &rpB * &cpA;
+				++cpA; 
+			}
+			&ABp++;
+		}
+	}	
 	return 0;
 }
 
 
-int matrixMultiply_unoptimized(int rowA, int colA, int rowB, int colB, \
-	   	int A[rowA][colA], int B[rowB][colB], intAB[rowA][colB])	{
+int matMul_nonOpt(int rowA, int colA, int rowB, int colB, \
+	   	int A[rowA][colA], int B[rowB][colB], int AB[rowA][colB])	{
 		// check for errors in input
 	if (colA != rowB) {
 		fprintf("ERROR: matrix multiplication requires the number of columns in matrix B to equal the number of rows in matrix A.");
