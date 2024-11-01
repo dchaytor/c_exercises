@@ -1,6 +1,11 @@
 /* ex15-2: write a matrix multiply function. create a test program
  * that not only tests the function, but times it as well. optimize
- * it using pointers and determine the time savings.			*/
+ * it using pointers and determine the time savings.		
+ *
+ * ASSUMPTIONS:
+ * - matrices are using integer values only
+ * - matrix elements are <=999 (affects printout only)
+ * */
 
 #include <stdlib.h>
 #include <time.h>
@@ -12,7 +17,7 @@ int matMul(int rowA, int colA, int rowB, int colB, \
 int matMul_nonOpt(int rowA, int colA, int rowB, int colB, \
 	   	int A[rowA][colA], int B[rowB][colB], int AB[rowA][colB]);
 
-int main(int argc, const int *argv[])	{
+int main(int argc, const char *argv[])	{
 	// WRITE CODE TO ACCEPT OPTIONAL INPUT FILE (default to stdout)
 	int s = 0;
 	FILE* OUTFILE = stdout;	
@@ -25,9 +30,11 @@ int main(int argc, const int *argv[])	{
 		}
 	}
 
-	// FILL OUT TEST CASES
-	time_t *AB1_START, time_t *AB1_END;
-	
+	time_t *AB_START, time_t *AB_END;
+
+	// defining pointers for tracking printout
+	int *startPA, int *startPB, int *startPAB;
+
 	const int ROWS_A1 = 2;
 	const int COLS_A1 = 2;
 	const int ROWS_B1 = 2;
@@ -41,22 +48,27 @@ int main(int argc, const int *argv[])	{
 		[3, 3],
 		[9, 4]
 	};
-	int AB1[ROWS_A1][COLS_B1];
-	
+	int AB[ROWS_A1][COLS_B1];
+
+	// getting size of printout, assigning pointers
+	int PRINTROWS = (ROWS_A1 > ROWS_B1 ? ROWS_A1 : ROWS_B1);
+	int PRINTCOLS = COLS_A1 + 2*COLS_B1 + 10;
+
 	// timing non-optimal function
 	prefix = "non-";
-	time(AB1_START);
+	startPA = A1, startPB = B1, startPAB = AB1;	// reset printout ptrs
+	time(AB_START);
 	s = matMul_nonOpt(ROWS_A1, COLS_A1, ROWS_B1, COLS_B1, A1, B1, AB1);
-	time(AB1_end);
+	time(AB_END);
 	goto PRINT_MSG;		// print message out w/ current variables
-
 
 	// timing optimal function
 	prefix[0] = '\0';
-	time(AB1_start);
-	s = matMul(ROWS_A1, COLS_A1, ROWS_B2, COLS_B2, A1, B1, AB1);
-	time(AB1_end);
-	goto PRINT_MST;
+	startPA = A1, startPB = B1, startPAB = AB1;	// reset printout ptrs
+	time(AB_START);
+	s = matMul(ROWS_A1, COLS_A1, ROWS_B1, COLS_B1, A1, B1, AB1);
+	time(AB_END);
+	goto PRINT_MSG;		// print message out w/ current variables
 
 	return 0;
 }
@@ -65,23 +77,32 @@ PRINT_MSG:
 	fprintf(OUTFILE, "Results of %soptimal matrix multiplication:\n",\
 		   	prefix);
 	goto PRINT_MATRIX; // print matrix out w/ current variables
-	fprintf(OUTFILE, "\n");
+	fprintf(OUTFILE, "Time elapsed: %ds\n\n", (int)(AB_END-AB_START));
 	return;
 
 PRINT_MATRIX:
-	// size a new char matrix based on the height of the output
-	// matrix (since should be the biggest) and the width of all
-	// three matrices + room for brackets, whitespace, math
-	// notation, and a column of \n chars at the end
+	// THIS SUCKS, but i'm not sure of good way to do this!
+	// track A w/ startPA, B w/ startPB, AB w/ startPAB
+	// loop thru cols in PRINTCOLS, then rows in PRINTROWS in inner loop 
 
+	// using conditionals, see what matrix should be printed out
+	// at the given row, col (check bounds based on COLS_A1, etc.)
 
-	// loop through matrices separately (trusting it's sized properly)
-	// assigning the appropriate chars in output matrix (print('0'+int) 
+	// if column +/-1 of a matrix bounds + row == mb, print brackets
 
+	// if no matrix should be printed at given row, but within
+	// the "inside" of a matrix, print '\t'; else print ' '
 	
-	// go through matrix in order (column > row, use ptr) and print
-	// char to output file
+	// if after B matrix, print out an equal sign in middle row
 	
+	// if inside matrix, dereference ptr, print value, increment
+	// pointer; pad printout to length of tab character
+
+	// if at last column (c == PRINTCOLS), print a '\n'
+
+	// remember: AB has rows of A, cols of B (starts at same col
+	// in matrix as A, runs as long as B) 
+
 	
 	return;
 
@@ -121,7 +142,6 @@ int matMul(int rowA, int colA, int rowB, int colB, \
 	}	
 	return 0;
 }
-
 
 int matMul_nonOpt(int rowA, int colA, int rowB, int colB, \
 	   	int A[rowA][colA], int B[rowB][colB], int AB[rowA][colB])	{
