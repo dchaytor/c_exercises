@@ -33,7 +33,8 @@ int main(int argc, const char *argv[])	{
 	time_t *AB_START, time_t *AB_END;
 
 	// defining pointers for tracking printout
-	int *startPA, int *startPB, int *startPAB;
+	int *pA, int *pB, int *pAB;
+	int COLS_A, int ROWS_A, int COLS_B, int ROWS_B;
 
 	const int ROWS_A1 = 2;
 	const int COLS_A1 = 2;
@@ -50,13 +51,15 @@ int main(int argc, const char *argv[])	{
 	};
 	int AB[ROWS_A1][COLS_B1];
 
-	// getting size of printout, assigning pointers
+	// getting size of printout, assigning pointers/matrix ints
 	int PRINTROWS = (ROWS_A1 > ROWS_B1 ? ROWS_A1 : ROWS_B1);
 	int PRINTCOLS = COLS_A1 + 2*COLS_B1 + 10;
+	COLS_A = COLS_A1, ROWS_A = ROWS_A1;
+	COLS_B = COLS_B1, ROWS_B = ROWS_B1;
 
 	// timing non-optimal function
 	prefix = "non-";
-	startPA = A1, startPB = B1, startPAB = AB1;	// reset printout ptrs
+	pA = A1, pB = B1, pAB = AB1;	// reset printout ptrs
 	time(AB_START);
 	s = matMul_nonOpt(ROWS_A1, COLS_A1, ROWS_B1, COLS_B1, A1, B1, AB1);
 	time(AB_END);
@@ -64,7 +67,7 @@ int main(int argc, const char *argv[])	{
 
 	// timing optimal function
 	prefix[0] = '\0';
-	startPA = A1, startPB = B1, startPAB = AB1;	// reset printout ptrs
+	pA = A1, pB = B1, pAB = AB1;	// reset printout ptrs
 	time(AB_START);
 	s = matMul(ROWS_A1, COLS_A1, ROWS_B1, COLS_B1, A1, B1, AB1);
 	time(AB_END);
@@ -82,28 +85,74 @@ PRINT_MSG:
 
 PRINT_MATRIX:
 	// THIS SUCKS, but i'm not sure of good way to do this!
-	// track A w/ startPA, B w/ startPB, AB w/ startPAB
-	// loop thru cols in PRINTCOLS, then rows in PRINTROWS in inner loop 
+	// for loop conditions would be tough to read otherwise	
+	short A_STARTCOL = 0;	// left bracket for A
+	short A_ENDCOL = A_STARTCOL + COLS_A + 1; // A right brack
+	short B_STARTCOL = A_ENDCOL + 1;	// B left brack
+	short B_ENDCOL = B_STARTCOL + COLS_B + 1; // B right brack 
+	short AB_STARTCOL = B_ENDCOL + 2;	// AB left brack
+	short AB_ENDCOL = PRINTCOLS - 2;	// AB right brack 
+	short A_STARTROW = (PRINTROWS - ROWS_A) / 2;
+	short A_ENDROW = A_STARTROW + COLS_A; 
+	short B_STARTROW = (PRINTROWS - ROWS_B) / 2;
+	short B_ENDROW = B_STARTROW + COLS_B;
 
-	// using conditionals, see what matrix should be printed out
-	// at the given row, col (check bounds based on COLS_A1, etc.)
-
-	// if column +/-1 of a matrix bounds + row == mb, print brackets
-
-	// if no matrix should be printed at given row, but within
-	// the "inside" of a matrix, print '\t'; else print ' '
-	
-	// if after B matrix, print out an equal sign in middle row
-	
-	// if inside matrix, dereference ptr, print value, increment
-	// pointer; pad printout to length of tab character
-
-	// if at last column (c == PRINTCOLS), print a '\n'
-
-	// remember: AB has rows of A, cols of B (starts at same col
-	// in matrix as A, runs as long as B) 
-
-	
+	for (int i = 0; i < PRINTCOLS; ++i)	{
+		for (int j = 0; j < PRINTROWS; ++j)	{
+			// i'd love to use a switch here, but need ranges
+			if (i == A_STARTCOL)	{	// A left brack
+				if (j <= A_STARTROW && j > A_ENDROW)	{
+					fprintf(OUTFILE, "[");
+				} else fprintf(OUTFILE, " ");
+			}
+			else if (i < A_ENDCOL)	{	// A matrix 
+				if (j <= A_STARTROW && j > A_ENDROW)	{
+					fprintf(OUTFILE, "%4d", *pA++);
+				} else fprintf(OUTFILE, "    ");
+			}	
+			else if (i == A_ENDCOL)	{	// A right brack
+				if (j <= A_STARTROW && j > A_ENDROW)	{
+					fprintf(OUTFILE, "]");
+				} else fprintf(OUTFILE, " ");
+			}
+			else if (i == B_STARTCOL)	{	// B left brack
+			   if (j <= B_STARTROW && j > B_ENDROW)	{
+					fprintf(OUTFILE, "[");
+			   } else fprintf(OUTFILE, " ");
+			}	   
+			else if (i < B_ENDCOL)	{	// B matrix 
+				if (j <= B_STARTROW && j > B_ENDROW)	{
+					fprintf(OUTFILE, "%4d", *pB++);
+				} else fprintf(OUTFILE, "    ");
+			}	
+			else if (i == B_ENDCOL)	{	// B right brack
+				if (j <= B_STARTROW && j > B_ENDROW)	{
+					fprintf(OUTFILE, "]");
+				} else fprintf(OUTFILE, " ");
+			}
+			else if (i == B_ENDCOL + 1)	{ // equal sign
+				if (j == PRINTROWS / 2)	{
+					fprintf(OUTFILE, "=");
+				} else fprintf(OUTFILE, " ");
+			}
+			else if (i == AB_STARTCOL)	{ // AB left brack
+				if (j <= A_STARTROW && j > A_ENDROW)	{
+					fprintf(OUTFILE, "[");
+				} else fprintf(OUTFILE, " ");
+			}
+			else if (i < AB_ENDCOL)	{	// AB matrix
+				if (j <= A_STARTROW && j > A_ENDROW)	{
+					fprintf(OUTFILE, "%4d", *pAB++);
+				} else fprintf(OUTFILE, "    ");
+			}
+			else if (i == AB_ENDCOL)	{ // AB right brack
+				if (j <= A_STARTROW && j > A_ENDROW)	{
+					fprintf(OUTFILE, "]");
+				} else fprintf(OUTFILE, " ");
+			}
+			else fprintf(OUTFILE, "\n");
+		}
+	}
 	return;
 
 /* NOTE: assuming 2D array with space already allocated			*/ 
