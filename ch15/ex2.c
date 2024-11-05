@@ -10,6 +10,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define ROWS_A1 2
 #define COLS_A1 2
@@ -114,11 +115,6 @@ int matMul(int rowA, int colA, int rowB, int colB, \
 		fprintf(stderr, "ERROR: matrix multiplication requires the number of rows in matrix B to equal the columns of rows in matrix A.\n");
 		return -1;
 	}
-	if (sizeof(A)*sizeof(A[0]) < sizeof(int) * rowA * colA || \
-			sizeof(B)*sizeof(B[0]) < sizeof(int) * rowB * colB)	{
-		fprintf(stderr, "ERROR: size of provided matrix does not match input row and column values\n");
-		return -1;		
-	}
 	
 	// loop through and do matrix multiplication
 	int* cpA = &A[0][0];		// col pointer for A
@@ -150,11 +146,6 @@ int matMul_nonOpt(int rowA, int colA, int rowB, int colB, \
 	if (colA != rowB) {
 		fprintf(stderr, "ERROR: matrix multiplication requires the number of columns in matrix B to equal the number of rows in matrix A.\n");
 		return -1;
-	}
-	if (sizeof(A)*sizeof(A[0]) < sizeof(int) * rowA * colA || \
-			sizeof(B)*sizeof(B[0]) < sizeof(int) * rowB * colB)	{
-		fprintf(stderr, "ERROR: size of provided matrix does not match input row and column values\n");
-		return -1;		
 	}
 	
 	int elsum = 0;
