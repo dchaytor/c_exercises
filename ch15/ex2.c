@@ -115,7 +115,10 @@ int matMul(int rowA, int colA, int rowB, int colB, \
 		fprintf(stderr, "ERROR: matrix multiplication requires the number of rows in matrix B to equal the columns of rows in matrix A.\n");
 		return -1;
 	}
-	
+
+	// null pointer check:
+	if (NULL == A || NULL == B || NULL == AB) return -1;
+
 	// loop through and do matrix multiplication
 	int* cpA = &A[0][0];		// col pointer for A
 	int* cpB = &B[0][0];		// row pointer for B
@@ -147,6 +150,9 @@ int matMul_nonOpt(int rowA, int colA, int rowB, int colB, \
 		fprintf(stderr, "ERROR: matrix multiplication requires the number of columns in matrix B to equal the number of rows in matrix A.\n");
 		return -1;
 	}
+	
+	// null pointer check:
+	if (NULL == A || NULL == B || NULL == AB) return -1;
 	
 	int elsum = 0;
 	// loop through rows of matrix A

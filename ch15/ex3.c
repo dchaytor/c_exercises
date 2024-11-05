@@ -4,8 +4,9 @@
 #include <stdio.h>
 
 int sumArray(int A[], int sizeA)	{
-	register int sum = 0;
 	int* pA = &A[0];
+	if (pA == NULL) return -1;
+	register int sum = 0;	
 	while (pA < (A + sizeA))	{
 		sum += *pA++;
 	}
