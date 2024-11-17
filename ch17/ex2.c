@@ -13,7 +13,7 @@ static struct node* head = NULL;
 // adding at head by default
 struct node* addNode(char data)	{
 	struct node* newnode = (struct node*)malloc(sizeof(struct node));
-	newnode -> next == NULL;
+	newnode -> next = NULL;
 	if (head != NULL) 
 		newnode -> next = head;
 	newnode -> c = data;
@@ -23,16 +23,22 @@ struct node* addNode(char data)	{
 
 // pass to function node to delete
 void delNode(struct node** condemned)	{
-	struct node* nextnode = head;
-	struct node* thisnode = head;
-	while (thisnode != NULL)	{
-		nextnode = thisnode -> next;
-		if (nextnode == *condemned)	{ // found node to kill
-			thisnode -> next = nextnode -> next;
-			free(nextnode); // assumes allocated with malloc
-			break;	
-		}	
-		thisnode = nextnode;
+	if (*condemned == head)	{	// handle head case
+		struct node *newhead = head -> next;	
+		free(head);
+		head = newhead;
+	} else	{		
+		struct node* nextnode = head;
+		struct node* thisnode = head;
+		while (thisnode != NULL)	{
+			nextnode = thisnode -> next;
+			if (nextnode == *condemned)	{ // found node to kill
+				thisnode -> next = nextnode -> next;
+				free(*condemned); // assumes allocated with malloc
+				break;	
+			}	
+			thisnode = nextnode;
+		}
 	}
 }
 
@@ -65,6 +71,8 @@ int main()	{
 	
 	printList();
 	delNode(&n2);
+	delNode(&n5);
+	delNode(&n6);	
 	printList();
 	clearList();
 	return 0;
