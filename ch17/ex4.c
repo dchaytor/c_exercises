@@ -95,7 +95,7 @@ void del(struct branch **badbranch)	{
 	free(*badbranch);
 }
 
-void _printTree(struct branch *node, int pad)	{
+void _printTree(struct branch *node, short pad)	{
 	// print tree horizontally:
 	// if next right node is null, print current node padded pad spaces + \n
 	// recursively search through right nodes
@@ -120,33 +120,56 @@ void _clearTree()	{
 }
 
 void _DELETE()	{
-	short data;
+	int data;
 	char buf[4];
-	puts("Input tree element to be deleted: ");
+	printf("  Input tree element to be deleted: ");
 	fgets(buf, 4, stdin);
-	data = sscanf("%d", &data);
-	printf("Attempting to delete a %d from the list:\n", data);
-	struct branch *badbranch = search(data);	
-	if (struct branch *badbranch = search(data) == NULL) 
-		printf("Could not find item %d in list\n", data);
-	else del(&badbranch);
+	
+	if (sscanf(buf, "%d", &data) > 0)	{
+		printf("  Attempting to delete a %d from the list:\n", data);
+		struct branch *badbranch = search((short)data);
+		if (badbranch == NULL)
+			printf("  Could not find item %d in list\n", data);
+		else del(&badbranch);
+	} else printf("  Invalid input\n");
 }
 
 void _ADD()		{
-
+	int data;
+	char buf[4];
+	printf("  Enter data to add to tree: ");
+	fgets(buf, 4, stdin);
+	if (sscanf(buf, "%d", &data) > 0)	{
+		add(data);
+		printf("  Added %d to the list\n", data);
+	} else printf("  Invalid input\n");
 }
 
-void _SEARCH	{
-
+void _SEARCH()	{
+	int data;
+	char buf[4];
+	printf("  Enter data to look up in tree: ");
+	fgets(buf, sizeof(buf), stdin);
+	if (sscanf(buf, "%d", &data) > 0)	{
+		struct branch *searchbranch = search((short)data);
+		if (searchbranch == NULL)
+			printf("  Could not find item %d in list\n", data);
+		else
+			printf("  %d was found in list\n", data);
+	} else printf("  Invalid input\n");
 }
 
 // only considering values up to 999 to make printout nicer
+// INPUT IS SUPER EASY TO OVERFLOW:
+// 	- need to read to end of stdin after reading input into buffer
+//    otherwise next getchar will just read overflow input
 int main()	{
-	char input;
-	puts("BST test program:\n"); 
+	char input = 'b';
+	puts("BST test program:"); 
 	while(input != 'q')	{
-		puts("[A]DD/[D]ELETE/[S]EARCH/[P]RINT/[Q]UIT  ");
+		printf("[A]DD/[D]ELETE/[S]EARCH/[P]RINT/[Q]UIT\t");
 		input = getchar();
+		getchar();	// trailing newline
 		switch(input)	{
 			case 'a':
 			case 'A':
@@ -162,6 +185,7 @@ int main()	{
 				break;
 			case 'p':
 			case 'P':
+				printf("\n");
 				printTree();
 				break;
 			//case 'q':
