@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#define _CLEARINPUT() while (getchar() != '\n');
 
 static struct branch	{
 	struct branch *left;
@@ -64,7 +67,7 @@ void del(struct branch **badbranch)	{
 			while (repbranch -> left != NULL)	{
 				repbranch = repbranch -> left;
 			}
-			repbranch -> left = (*badbranch) -> left;	
+			repbranch -> left = (*badbranch) -> left;
 		}
 	}
 
@@ -84,7 +87,7 @@ void del(struct branch **badbranch)	{
 			}
 			
 			// check data to see what next branch to search should be
-			if (thisbranch -> data <= (*badbranch) -> data)	{
+			if (thisbranch -> data > (*badbranch) -> data)	{
 				thisbranch = thisbranch -> left;
 			} else	{
 				thisbranch = thisbranch -> right;	
@@ -124,13 +127,18 @@ void _DELETE()	{
 	char buf[4];
 	printf("  Input tree element to be deleted: ");
 	fgets(buf, 4, stdin);
-	
+	if (strlen(buf) >= sizeof(buf)-1)
+		if (buf[2] != '\n')
+			_CLEARINPUT();
 	if (sscanf(buf, "%d", &data) > 0)	{
 		printf("  Attempting to delete a %d from the list:\n", data);
 		struct branch *badbranch = search((short)data);
 		if (badbranch == NULL)
 			printf("  Could not find item %d in list\n", data);
-		else del(&badbranch);
+		else {
+			del(&badbranch);
+			printf("  Deleted a %d from the list\n", data);
+		}
 	} else printf("  Invalid input\n");
 }
 
@@ -139,6 +147,10 @@ void _ADD()		{
 	char buf[4];
 	printf("  Enter data to add to tree: ");
 	fgets(buf, 4, stdin);
+	if (strlen(buf) >= sizeof(buf)-1)	{
+		if (buf[2] != '\n')
+			_CLEARINPUT();
+	} 
 	if (sscanf(buf, "%d", &data) > 0)	{
 		add(data);
 		printf("  Added %d to the list\n", data);
@@ -150,6 +162,10 @@ void _SEARCH()	{
 	char buf[4];
 	printf("  Enter data to look up in tree: ");
 	fgets(buf, sizeof(buf), stdin);
+	// check value of fgets and use to decide if need to clear input
+	if (strlen(buf) >= sizeof(buf)-1)
+		if (buf[2] != '\n')
+			_CLEARINPUT();
 	if (sscanf(buf, "%d", &data) > 0)	{
 		struct branch *searchbranch = search((short)data);
 		if (searchbranch == NULL)
@@ -167,9 +183,11 @@ int main()	{
 	char input = 'b';
 	puts("BST test program:"); 
 	while(input != 'q')	{
-		printf("[A]DD/[D]ELETE/[S]EARCH/[P]RINT/[Q]UIT\t");
+		printf("[A]DD/[D]ELETE/[S]EARCH/[P]RINT/[C]LEAR/[Q]UIT\t");
 		input = getchar();
-		getchar();	// trailing newline
+		if (input != '\n')	
+			_CLEARINPUT();
+
 		switch(input)	{
 			case 'a':
 			case 'A':
@@ -187,6 +205,10 @@ int main()	{
 			case 'P':
 				printf("\n");
 				printTree();
+				break;
+			case 'c':
+			case 'C':
+				_clearTree();
 				break;
 			//case 'q':
 			case 'Q':
